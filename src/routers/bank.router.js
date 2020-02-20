@@ -6,6 +6,7 @@ const router = new express.Router();
 router.get('/banks', async (req, res) => {
 
     try{
+        console.log(req.query);
         setTimeout(async () => {
             const banks = await Bank.find({});
             res.send(banks);

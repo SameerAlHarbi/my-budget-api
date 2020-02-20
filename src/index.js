@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const chalk = require('chalk');
 require('./db/mongoose');
+
 const relationRouter = require('./routers/relation');
 const beneficiaryRouter = require('./routers/beneficiary');
 const userRouter = require('./routers/user');
