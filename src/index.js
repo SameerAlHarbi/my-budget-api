@@ -5,7 +5,7 @@ require('./db/mongoose');
 
 const relationRouter = require('./routers/relation');
 const beneficiaryRouter = require('./routers/beneficiary');
-const userRouter = require('./routers/user');
+const userRouter = require('./routers/user.router');
 const bankRouter = require('./routers/bank.router')
 
 const app = express();

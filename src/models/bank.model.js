@@ -14,6 +14,12 @@ const Bank = mongoose.model('Bank', {
         trim: true,
         minlength:6
     },
+    owner: 
+    {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'User'
+    }
 });
 
 

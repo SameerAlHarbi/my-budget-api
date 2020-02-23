@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const chalk = require('chalk');
 
-mongoose.connect('mongodb://127.0.0.1:27017/my-budget-db', {
+mongoose.connect('mongodb://127.0.0.1:27017/my-budget', {
     useNewUrlParser: true,
     useCreateIndex: true,
     useUnifiedTopology: true
