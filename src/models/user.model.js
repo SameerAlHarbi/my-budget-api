@@ -11,9 +11,11 @@ const userSchema = new mongoose.Schema({
         unique: true,
         trim: true,
         minlength: 4
-    }, email: {
+    }, 
+    email: {
         type: String,
         required: true,
+        unique: true,
         trim: true,
         lowercase: true,
         validate(value) {
@@ -21,23 +23,31 @@ const userSchema = new mongoose.Schema({
                 throw new Error('Invalid email')
             }
         }
-    }, password:{
+    }, 
+    password:{
         type: String,
-        trim: true,
         require: true,
+        trim: true,
         minlength: 7,
+        validate(value) {
+            if (value.toLowerCase().includes('password')) {
+                throw new Error('Password cannot contain "password"')
+            }
+        }
     }, tokens: [{
         token:{
             type: String,
             required: true
         }
     }]
+},{
+    timestamps: true
 });
 
 userSchema.virtual('banks', {
     ref: 'Bank',
     localField: '_id',
-    forienField: 'owner'
+    foreignField: 'owner'
 })
 
 userSchema.methods.toJSON = function() {
@@ -52,7 +62,7 @@ userSchema.methods.toJSON = function() {
 
 userSchema.methods.generateAuthToken = async function () {
     const user = this;
-    const token = jwt.sign({_id: user._id.toString()}, 'my_budget_key');
+    const token = jwt.sign({_id: user._id.toString(), name: user.userName}, 'my_budget_key');
 
     user.tokens = user.tokens.concat({ token });
     await user.save();
@@ -90,8 +100,6 @@ userSchema.pre('save', async function(next) {
 userSchema.pre('remove' , async function(next) {
     const user = this;
     await Bank.deleteMany({owner: user._id})
-
-
     next();
 });
 

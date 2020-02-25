@@ -6,27 +6,40 @@ const router = new express.Router();
 
 router.get('/banks', auth,async (req, res) => {
 
-    try{
-        // console.log(req.query);
-        // setTimeout(async () => {
-        //     const banks = await Bank.find({});
-        //     res.send(banks);
-        // }, 3000);
+    const match = {};
+    const sort = {};
 
-        // const banks = await Bank.find({ owner: req.user._id});
-        await req.user.populate('banks').execPopulate();
+    if(req.query.active) {
+        match.active = req.query.active === 'true'
+    }
+
+    if(req.query.sortBy) {
+        const parts = req.query.sortBy.split(':');
+        sort[parts[0]] = parts[1] === 'desc' ? -1 : 1;
+    }
+
+    try{ 
+        await req.user.populate({
+            path: 'banks' ,
+            match,
+            options:{
+                limit: parseInt(req.query.limit),
+                skip: parseInt(req.query.skip),
+                sort
+            }          
+        }).execPopulate();
+
         res.send(req.user.banks);
-
     } catch (e) {
         res.status(500).send();
     }
 });
 
-router.get('/banks/:id', auth,async (req, res) => {
-    
+router.get('/banks/:code', auth,async (req, res) => {
+    const code = req.params.code
+
     try{
-        // const bank = await Bank.findById(req.params.id);
-        const bank = await Bank.findOne({_id: req.params.id, owner: req.user._id});
+        const bank = await Bank.findOne({code, owner: req.user._id});
 
         if(!bank) {
             return res.status(404).send();
@@ -38,8 +51,7 @@ router.get('/banks/:id', auth,async (req, res) => {
     }
 });
 
-router.post('/banks', async (req, res) => {
-    // const bank = new Bank(req.body);
+router.post('/banks', auth,async (req, res) => {
     const bank = new Bank({
         ...req.body,
         owner: req.user._id
@@ -53,17 +65,17 @@ router.post('/banks', async (req, res) => {
     }
 });
 
-router.patch('/banks/:id', async (req, res) => {
+router.patch('/banks/:code', async (req, res) => {
     const updates = Object.keys(req.body);
     const allowedUpdates = ['code', 'name'];
     const isValidOperation = updates.every(update => allowedUpdates.includes(update));
 
     if(!isValidOperation) {
-       return res.status(400).send('Invalid update!');
+       return res.status(400).send({error: 'Invalid update!'});
     }
 
     try {
-        const bank = await Bank.findOne({ _id = req.params.id, owner: req.user._id})
+        const bank = await Bank.findOne({ code: req.params.code, owner: req.user._id})
 
         // const bank = await Bank.findByIdAndUpdate(req.params.id, req.body, { new: true , runValidators: true});
 
@@ -80,11 +92,12 @@ router.patch('/banks/:id', async (req, res) => {
     }
 });
 
-router.delete('/banks/:id', async (req, res) => {
+router.delete('/banks/:code', async (req, res) => {
 
     try{
         // const bank = await Bank.findByIdAndDelete(req.params.id);
-        const bank = await Bank.findOneAndDelete({_id: req.params.id, owner: req.uer._id});
+        const bank = await Bank.findOneAndDelete({code: req.params.code, owner: req.uer._id});
+        
         if(!bank) {
             return res.status(404).send();
         }

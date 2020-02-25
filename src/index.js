@@ -24,6 +24,7 @@ app.use(cors({
       }
       return callback(null, true);
     }}));
+    
 app.use(express.json());
 app.use(relationRouter);
 app.use(beneficiaryRouter);

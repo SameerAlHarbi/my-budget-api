@@ -12,6 +12,10 @@ router.get('/users', auth, async (req, res) => {
     }
 });
 
+router.get('/users/me', auth,(req, res) => {
+    res.send(req.user);
+})
+
 router.get('/users/:id', auth, async (req, res) => {
     const _id = req.params.id;
 
@@ -29,12 +33,11 @@ router.get('/users/:id', auth, async (req, res) => {
 });
 
 router.post('/users', async (req, res) => {
-    const user = new User(req.body);
-
     try {
+        const user = new User(req.body);
         await user.save();
         const token = await user.generateAuthToken();
-        res.status(201).send({user,token});
+        res.status(201).send({ user, token });
     } catch (e) {
         res.status(400).send(e);
     }
@@ -50,24 +53,25 @@ router.post('/users/login', async (req, res) => {
     }
 });
 
-router.post('/users/logout', async (req, res) => {
+router.post('/users/logout', auth,async (req, res) => {
     try {
         req.user.tokens = req.user.tokens.filter(token => {
             return token.token !== req.token;
         });
 
         await req.user.save();
-        req.send();
+
+        res.send();
     } catch (e) {
-        req.status(500).send();
+        res.status(500).send();
     }
 });
 
-router.post('/users/logoutAll', async (req, res) => {
+router.post('/users/logoutAll', auth,async (req, res) => {
     try {
         req.user.tokens = [];
         await req.user.save();
-        req.send();
+        res.send();
     } catch (e) {
         res.status(500).send();
     }
