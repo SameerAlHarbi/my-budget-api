@@ -24,6 +24,11 @@ const userSchema = new mongoose.Schema({
             }
         }
     }, 
+    isAdmin: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
     password:{
         type: String,
         require: true,
@@ -89,6 +94,12 @@ userSchema.statics.findByCredentials = async (email, password) => {
 //Hash the plain password text before saving
 userSchema.pre('save', async function(next) {
     const user = this;
+
+    const count = await User.estimatedDocumentCount();
+
+    if(count < 1) {
+        user.isAdmin = true;
+    }
 
     if(user.isModified('password')) {
         user.password = await bcrypt.hash(user.password, 8);
