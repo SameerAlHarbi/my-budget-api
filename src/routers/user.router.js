@@ -118,7 +118,7 @@ router.delete('/users/me', auth, async (req, res) => {
 });
 
 const upload = multer({
-    dest: 'images'
+    dest: 'avatars'
 });
 
 router.post('/users/me/avatar', upload.single('avatar'), (req, res) => {
