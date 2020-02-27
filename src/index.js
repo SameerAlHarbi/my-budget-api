@@ -6,12 +6,21 @@ require('./db/mongoose');
 const relationRouter = require('./routers/relation');
 const beneficiaryRouter = require('./routers/beneficiary');
 const userRouter = require('./routers/user.router');
-const bankRouter = require('./routers/bank.router')
+const bankRouter = require('./routers/bank.router');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-const whitelist = ['http://localhost:4200', 'http://abc.com']
+const multer = require('multer');
+const upload = multer({
+  dest: './images'
+});
+
+app.post('/upload', upload.single('upload'),(req, res) => {
+  res.send();
+});
+
+const whitelist = ['http://localhost:4200', 'http://abc.com'];
 
 app.use(cors({
     origin: function(origin, callback){
@@ -29,8 +38,8 @@ app.use(express.json());
 app.use(relationRouter);
 app.use(beneficiaryRouter);
 app.use(userRouter);
-app.use(bankRouter)
+app.use(bankRouter);
 
 app.listen(port, () => {
     console.log(chalk.green.inverse('Server in up on port ' + port))
-})
+});
