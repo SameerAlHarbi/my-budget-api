@@ -9,7 +9,7 @@ const userRouter = require('./routers/user.router');
 const bankRouter = require('./routers/bank.router');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;// || 3000;
 
 const multer = require('multer');
 const upload = multer({
@@ -20,8 +20,12 @@ const upload = multer({
   fileFilter(req,file,cb) {
 
 
-    if(!file.originalname.endsWith('.pdf')) {
-      return cb(new Error('Please upload a PDF'));
+    // if(!file.originalname.endsWith('.pdf')) {
+    //   return cb(new Error('Please upload a PDF'));
+    // }
+    
+    if(!file.originalname.mstch(/\.(doc|docx)$/)) {
+      return cb(new Error('Please upload a Word document'));
     }
 
     return cb(undefined, true);
@@ -32,9 +36,25 @@ const upload = multer({
   }
 });
 
-app.post('/upload', upload.single('upload'),(req, res) => {
-  res.send();
-});
+// const errorMiddleware = (req,res, next) => {
+//   throw new Error('Error from my middleware');
+// }
+
+// app.post('/upload', upload.single('upload'),(req, res) => {
+//   res.send();
+// });
+
+// app.post('/upload', errorMiddleware,(req, res) => {
+//   res.send();
+// }, (error,req, res, next) => {
+//   res.status(400).send({error: error.message});
+// });
+
+// app.post('/upload',  upload.single('upload'),(req, res) => {
+//   res.send();
+// }, (error,req, res, next) => {
+//   res.status(400).send({error: error.message});
+// });
 
 const whitelist = ['http://localhost:4200', 'http://abc.com'];
 
@@ -48,7 +68,7 @@ app.use(cors({
         return callback(new Error(message), false);
       }
       return callback(null, true);
-    }}));
+}}));
     
 app.use(express.json());
 app.use(relationRouter);
