@@ -108,4 +108,10 @@ router.delete('/banks/:code', async (req, res) => {
     }
 });
 
+router.get('/banks/accounts',(req,res) => {
+    res.send();
+
+
+})
+
 module.exports = router;
