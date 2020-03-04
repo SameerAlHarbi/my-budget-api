@@ -39,7 +39,8 @@ const userSchema = new mongoose.Schema({
                 throw new Error('Password cannot contain "password"')
             }
         }
-    }, tokens: [{
+    }, 
+    tokens: [{
         token:{
             type: String,
             required: true

@@ -1,7 +1,8 @@
 const express = require('express');
 const Bank = require('../models/bank.model')
 const auth = require('../middleware/auth.middleware');
-
+const multer = require('multer');
+const sharp = require('sharp');
 const router = new express.Router();
 
 router.get('/banks', auth,async (req, res) => {
@@ -61,13 +62,13 @@ router.post('/banks', auth,async (req, res) => {
         await bank.save();
         res.status(201).send(bank);
     } catch (e) {
-        res.status(400).send(e);
+        res.status(400).send({ error: e.message});
     }
 });
 
-router.patch('/banks/:code', async (req, res) => {
+router.patch('/banks/:code', auth,async (req, res) => {
     const updates = Object.keys(req.body);
-    const allowedUpdates = ['code', 'name'];
+    const allowedUpdates = ['code', 'name', 'active'];
     const isValidOperation = updates.every(update => allowedUpdates.includes(update));
 
     if(!isValidOperation) {
@@ -88,16 +89,14 @@ router.patch('/banks/:code', async (req, res) => {
         
         res.send(bank);
     } catch (e) {
-        res.status(400).send(e);
+        res.status(400).send({ error: e.message });
     }
 });
 
-router.delete('/banks/:code', async (req, res) => {
+router.delete('/banks/:code', auth,async (req, res) => {
 
     try{
-        // const bank = await Bank.findByIdAndDelete(req.params.id);
-        const bank = await Bank.findOneAndDelete({code: req.params.code, owner: req.uer._id});
-        
+        const bank = await Bank.findOneAndDelete({code: req.params.code, owner: req.user._id});
         if(!bank) {
             return res.status(404).send();
         }
@@ -108,9 +107,62 @@ router.delete('/banks/:code', async (req, res) => {
     }
 });
 
+const upload = multer({
+    limits: {
+        fileSize: 500000
+    },
+    fileFilter(req, file, cb) {
+        if(!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+            return cb(new Error('Please upload an image'))
+        }
+
+        return cb(undefined, true);
+    }   
+});
+
+router.post('/Banks/:code/logo', auth, upload.single('logo'), async (req, res) => {
+
+    try{
+        const buffer = await sharp(req.file.buffer).resize({ width: 250, height: 250 }).png().toBuffer();
+
+        const bank = await Bank.findOne({ code: req.params.code, owner: req.user._id });
+
+        if(!bank) {
+            return res.status(404).send();
+        }
+
+        bank.logo = buffer;
+        await bank.save();
+        res.send();
+    } catch(e) {
+        res.status(400).send({error: e.message});
+    }   
+}, (error, req, res, next) => {
+    res.status(400).send({ error: error.message });
+});
+
+router.get('/Banks/:code/logo', auth,async (req, res) => {
+    try{
+
+        const bank = await Bank.findOne({ code: req.params.code, owner: req.user._id });
+
+        if(!bank) {
+            return res.status(404).send();
+        }
+
+        if(!bank.logo) {
+            throw new Error('Logo Not Found');
+        }
+
+        res.set('Content-Type', 'image/png');
+        res.send(bank.logo);
+    } catch(e) {
+        res.status(400).send({ error: e.message });
+    }
+});
+
 router.get('/banks/accounts',(req,res) => {
     res.send();
-
 
 })
 

@@ -3,12 +3,11 @@ const mongoose = require('mongoose');
 const bankSchema = mongoose.Schema({
     code: {
         type: String,
-        required: true,
-        unique: true,
-        trim: true,       
+        required: true,  
         minlength:3,
         maxlength:6,
-        touppercase: true
+        trim: true, 
+        uppercase: true
     },
     name: {
         type: String,
@@ -26,9 +25,25 @@ const bankSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true,
         ref: 'User'
+    },
+    logo: {
+        type: Buffer
     }
 }, {
     timestamps: true
+});
+
+bankSchema.pre('save', async function(next) {
+    const bank = this;
+
+    if(bank.isModified('code')) {
+        const bankByCode = await Bank.findOne({ code: bank.code, owner: bank.owner });
+        if(bankByCode && bankByCode.id !== bank.id){
+            throw new Error('Bank code Duplicated!');
+        }
+    }
+
+    next();
 });
 
 const Bank = mongoose.model('Bank', bankSchema);
