@@ -128,11 +128,16 @@ const upload = multer({
     },
     fileFilter (req,file,cb) {
 
+        // if(!file.originalname.endsWith('.pdf')) {
+        //   return cb(new Error('Please upload a PDF'));
+        // }
+
         if(!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
             return cb(new Error('Please upload an image'))
         }
 
         return cb(undefined, true);
+        // return cb(undefined, false);//sliently reject the file
     }
 });
 
