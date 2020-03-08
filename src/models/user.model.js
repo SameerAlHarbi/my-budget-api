@@ -7,15 +7,15 @@ const Bank = require('./bank.model');
 const userSchema = new mongoose.Schema({
     userName: {
         type: String,
-        required: true,
         unique: true,
+        required: true,
         trim: true,
         minlength: 4
     }, 
     email: {
         type: String,
-        required: true,
         unique: true,
+        required: true,
         trim: true,
         lowercase: true,
         validate(value) {

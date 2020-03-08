@@ -45,7 +45,11 @@ router.post('/users', async (req, res) => {
         const token = await user.generateAuthToken();
         res.status(201).send({ user, token });
     } catch (e) {
-        res.status(400).send({error: 'please try again, later'});
+        console.log(e);
+        if(e.keyValue) {
+           return res.status(400).send({ error: e.keyValue.email ? 'Email duplicate !' : 'Username duplicate !'});
+        }
+        res.status(400).send({ error: 'Login error please verify your information!' });
     }
 });
 
