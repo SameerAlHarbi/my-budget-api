@@ -27,10 +27,11 @@ app.use(cors({
     
 app.use(express.json());
 
-app.use(userRouter);
+app.use('/users',userRouter);
+app.use('/banks',bankRouter);
 app.use(relationRouter);
 app.use(beneficiaryRouter);
-app.use(bankRouter);
+
 
 app.listen(port, () => {
     console.log(chalk.green.inverse('Server in up on port ' + port))

@@ -5,7 +5,7 @@ const multer = require('multer');
 const sharp = require('sharp');
 const router = new express.Router();
 
-router.get('/banks', auth,async (req, res) => {
+router.get('/', auth,async (req, res) => {
 
     const match = {};
     const sort = {};
@@ -36,7 +36,7 @@ router.get('/banks', auth,async (req, res) => {
     }
 });
 
-router.get('/banks/:code', auth,async (req, res) => {
+router.get('/:code', auth,async (req, res) => {
     const code = req.params.code
 
     try{
@@ -52,7 +52,7 @@ router.get('/banks/:code', auth,async (req, res) => {
     }
 });
 
-router.post('/banks', auth,async (req, res) => {
+router.post('/', auth,async (req, res) => {
     const bank = new Bank({
         ...req.body,
         owner: req.user._id
@@ -66,7 +66,7 @@ router.post('/banks', auth,async (req, res) => {
     }
 });
 
-router.patch('/banks/:code', auth,async (req, res) => {
+router.patch('/:code', auth,async (req, res) => {
     const updates = Object.keys(req.body);
     const allowedUpdates = ['code', 'name', 'active'];
     const isValidOperation = updates.every(update => allowedUpdates.includes(update));
@@ -93,7 +93,7 @@ router.patch('/banks/:code', auth,async (req, res) => {
     }
 });
 
-router.delete('/banks/:code', auth,async (req, res) => {
+router.delete('/:code', auth,async (req, res) => {
 
     try{
         const bank = await Bank.findOneAndDelete({code: req.params.code, owner: req.user._id});
@@ -120,7 +120,7 @@ const upload = multer({
     }   
 });
 
-router.post('/Banks/:code/logo', auth, upload.single('logo'), async (req, res) => {
+router.post('/:code/logo', auth, upload.single('logo'), async (req, res) => {
 
     try{
         const buffer = await sharp(req.file.buffer).resize({ width: 250, height: 250 }).png().toBuffer();
@@ -141,7 +141,7 @@ router.post('/Banks/:code/logo', auth, upload.single('logo'), async (req, res) =
     res.status(400).send({ error: error.message });
 });
 
-router.get('/Banks/:code/logo', auth,async (req, res) => {
+router.get('/:code/logo', auth,async (req, res) => {
     try{
 
         const bank = await Bank.findOne({ code: req.params.code, owner: req.user._id });
@@ -161,7 +161,7 @@ router.get('/Banks/:code/logo', auth,async (req, res) => {
     }
 });
 
-router.get('/banks/accounts',(req,res) => {
+router.get('/accounts',(req,res) => {
     res.send();
 
 })
