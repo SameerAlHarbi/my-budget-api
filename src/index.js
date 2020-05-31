@@ -32,6 +32,9 @@ app.use('/banks',bankRouter);
 app.use(relationRouter);
 app.use(beneficiaryRouter);
 
+app.use((req,res,next)=> {
+  res.status(404).send();
+});
 
 app.listen(port, () => {
     console.log(chalk.green.inverse('Server in up on port ' + port))
